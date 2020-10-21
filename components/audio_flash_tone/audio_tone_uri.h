@@ -1,0 +1,24 @@
+#ifndef __AUDIO_TONEURI_H__
+#define __AUDIO_TONEURI_H__
+
+extern const char* tone_uri[];
+
+typedef enum {
+    TONE_TYPE_A001_KAIJI,
+    TONE_TYPE_A002_WIFI_CON,
+    TONE_TYPE_A003_WIFI_DISCON,
+    TONE_TYPE_A004_WIFI_SCPASS,
+    TONE_TYPE_A005_OPEN,
+    TONE_TYPE_A006_MOVE_FINGER,
+    TONE_TYPE_A007_SUODING,
+    TONE_TYPE_A008_JIESUO,
+    TONE_TYPE_A009_FIRM_UPOK,
+    TONE_TYPE_A010_GMSET_FAIL,
+    TONE_TYPE_A011_GMSET_ONGO,
+    TONE_TYPE_A012_SERVER_CONFAIL,
+    TONE_TYPE_MAX,
+} tone_type_t;
+
+int get_tone_uri_num();
+
+#endif
