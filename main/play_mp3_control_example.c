@@ -140,7 +140,7 @@ static const char *payload = "register:53988b31ffdb2e7db9c9429b84f0f84";
 
 
 
-SwSerial *lock_uart_class;
+
 
 TaskHandle_t taskhandle1= NULL;
 TaskHandle_t taskhandle_system= NULL;
@@ -202,9 +202,7 @@ void es7134_pa_power(bool enable);
 
 
 //static 
-// const char *TAG = "uart_events";
-const char *TAG = "MP3_DECODER";
-
+const char *TAG = "uart_events";
 /**
  * This is an example which echos any data it receives on UART1 back to the sender,
  * with hardware flow control turned off. It does not use UART driver event queue.
@@ -233,10 +231,7 @@ const char *TAG = "MP3_DECODER";
     // #define ECHO_TEST3_RTS  (UART_PIN_NO_CHANGE)
     // #define ECHO_TEST3_CTS  (UART_PIN_NO_CHANGE)
 //#define UART_NUM_LOCK UART_NUM_0
-#define ECHO_TEST0_TXD  (GPIO_NUM_1)//2-deng    23     hard UART2 0
-#define ECHO_TEST0_RXD  (GPIO_NUM_3)//34        22
-#define ECHO_TEST0_RTS  (UART_PIN_NO_CHANGE)
-#define ECHO_TEST0_CTS  (UART_PIN_NO_CHANGE)//uart0
+
 
 
 #define ECHO_TEST_TXD  GPIO_NUM_33//32(GPIO_NUM_33)//GPIO_NUM_4
@@ -246,14 +241,14 @@ const char *TAG = "MP3_DECODER";
 
 
 //xin 1
-#define ECHO_TEST2_TXD  (GPIO_NUM_19)//2-deng    23     hard UART2 0
-#define ECHO_TEST2_RXD  (GPIO_NUM_36)//34        22
+#define ECHO_TEST2_TXD  (GPIO_NUM_23)//2-deng    23     hard UART2 0
+#define ECHO_TEST2_RXD  (GPIO_NUM_34)//34        22
 #define ECHO_TEST2_RTS  (UART_PIN_NO_CHANGE)
 #define ECHO_TEST2_CTS  (UART_PIN_NO_CHANGE)//zhiwen
 
 
-    #define ECHO_TEST3_TXD  (GPIO_NUM_23)//lock  uart3
-    #define ECHO_TEST3_RXD  (GPIO_NUM_34 )//GPIO_NUM_4  GPIO_NUM_21 todo
+    #define ECHO_TEST3_TXD  (GPIO_NUM_19)//lock  uart3
+    #define ECHO_TEST3_RXD  (GPIO_NUM_36 )//GPIO_NUM_4  GPIO_NUM_21 todo
     #define ECHO_TEST3_RTS  (UART_PIN_NO_CHANGE)
     #define ECHO_TEST3_CTS  (UART_PIN_NO_CHANGE)
     #define RE_485_GPIO     (GPIO_NUM_18)
@@ -1097,14 +1092,6 @@ void uart0_debug_data_dec(uint16_t* data,uint16_t len)//16
     DB_PR("\r\n");
 }
 
-void uartlock_output(uint8_t* data,uint16_t len)
-{
-    // DB_PR("---2----debug_data:");
-    for(int i=0;i<len;i++)
-        sw_write(lock_uart_class, data[i]);
-        // DB_PR("%02x ",data[i]);
-    // DB_PR("\r\n");
-}
 ///command struct
 typedef struct
 {
@@ -1431,8 +1418,7 @@ void send_cmd_to_lock(uint8_t board_addr, uint8_t lock_addr)//变量
 
     DB_PR("tx_Buffer2=");
     uart0_debug_data(tx_Buffer2, 13);
-    // uart_write_bytes(UART_NUM_LOCK, (const char *) tx_Buffer2, 13);
-    uartlock_output(tx_Buffer2, 13);
+    uart_write_bytes(UART_NUM_LOCK, (const char *) tx_Buffer2, 13);
     RS485_RX_EN();
 
 }
@@ -1456,8 +1442,7 @@ void send_cmd_to_lock_all(uint8_t opcode, uint8_t board_addr)//变量
 
     DB_PR("tx_Buffer2=");
     uart0_debug_data(tx_Buffer2, 11);
-    // uart_write_bytes(UART_NUM_LOCK, (const char *) tx_Buffer2, 11);
-    uartlock_output(tx_Buffer2, 11);
+    uart_write_bytes(UART_NUM_LOCK, (const char *) tx_Buffer2, 11);
     RS485_RX_EN();
 
 }
@@ -7136,44 +7121,45 @@ static void echo_task()
         // Read data from the UART
         len_rx0 = uart_read_bytes(UART_NUM_0, data_rx0, BUF_SIZE, 20 / portTICK_RATE_MS);
         len_rx = uart_read_bytes(UART_NUM_1, data_rx, BUF_SIZE, 20 / portTICK_RATE_MS);
-        // len_rx2_m = uart_read_bytes(UART_NUM_2, data_rx2_m, BUF_SIZE, 20 / portTICK_RATE_MS);
-
-
-
-
+        len_rx2_m = uart_read_bytes(UART_NUM_2, data_rx2_m, BUF_SIZE, 20 / portTICK_RATE_MS);
         // Write data back to the UART
         
         //uart_write_bytes(UART_NUM_1, (const char *) data_rx, len_rx);//len =0 budayin
         //uart_write_bytes(UART_NUM_2, (const char *) data_rx, len_rx);
 
 
-        // if ((len_rx2_m > 0) ) {
+        if ((len_rx2_m > 0) ) {
             
-        //     // len_rx2_m = len_rx2_m;
-        //     // memcpy(data_rx2_m,data_rx2_m,len_rx2_m);
-        //     DB_PR("2rcv_zhiwen_uart2-Received %u bytes:", len_rx2_m);//zhiwen
-        //     for (int i = 0; i < len_rx2_m; i++) {
-        //         DB_PR("0x%.2X ", (uint8_t)data_rx2_m[i]);
-        //     }
-        //     DB_PR("] \n");
+            // len_rx2_m = len_rx2_m;
+            // memcpy(data_rx2_m,data_rx2_m,len_rx2_m);
+
+
+            // DB_PR("2rcv_zhiwen_uart2-Received %u bytes:", len_rx2_m);//zhiwen
+            // for (int i = 0; i < len_rx2_m; i++) {
+            //     DB_PR("0x%.2X ", (uint8_t)data_rx2_m[i]);
+            // }
+            // DB_PR("] \n");
             
-        //     flag_rx2 =1;
-        //     DB_PR("-----2----flag_rx2=%u\r\n", flag_rx2);
+            // flag_rx2 =1;
+            // DB_PR("-----2----flag_rx2=%u\r\n", flag_rx2);
             
-        //     // if(taskhandle_uart2!=NULL)
-        //     // {
-        //     //     DB_PR("--uart2--111111-----.\r\n");
-        //     //     vTaskDelete(taskhandle_uart2);
-        //     //     taskhandle_uart2 =NULL;
-        //     // }
-        //     // else
-        //     // {
-        //     //     DB_PR("--uart2--222222 =NULL-----.\r\n");
-        //     // }
+
+
+            // if(taskhandle_uart2!=NULL)
+            // {
+            //     DB_PR("--uart2--111111-----.\r\n");
+            //     vTaskDelete(taskhandle_uart2);
+            //     taskhandle_uart2 =NULL;
+            // }
+            // else
+            // {
+            //     DB_PR("--uart2--222222 =NULL-----.\r\n");
+            // }
             
-        //     // xTaskCreate(echo_task3, "uart_echo_task3",2* 1024, NULL, 2, &taskhandle_uart2);//uart2
-        //     //uart_write_bytes(UART_NUM_2, (const char *) data_rx2_m, len_rx2_m);
-        // }
+            // xTaskCreate(echo_task3, "uart_echo_task3",2* 1024, NULL, 2, &taskhandle_uart2);//uart2
+            uart_write_bytes(UART_NUM_0, (const char *) data_rx2_m, len_rx2_m);
+            uart_write_bytes(UART_NUM_2, (const char *) data_rx2_m, len_rx2_m);
+        }
 
 								
 		
@@ -7200,12 +7186,13 @@ static void echo_task()
 
             xTaskCreate(echo_task2, "uart_echo_task2",6* 1024, NULL, 2, NULL);//uart1
 
+            uart_write_bytes(UART_NUM_DUBUG, (const char *) data_rx, len_rx);
         }
 	
 
         if (len_rx0 > 0) {
 
-            DB_PR("0rcv_2g_uart0-Received %u bytes:", len_rx0);//485  DTU
+            DB_PR("0rcv_lcd_uart1-Received %u bytes:", len_rx0);//485  DTU
             for (int i = 0; i < len_rx0; i++) {
                 DB_PR("0x%.2X ", (uint8_t)data_rx0[i]);
             }
@@ -7213,9 +7200,9 @@ static void echo_task()
 
             //vTaskDelay(2 / portTICK_PERIOD_MS);
             // xTaskCreate(echo_task0, "uart_echo_task0",2* 1024, NULL, 2, NULL);//uart1
+            RS485_TX_EN();
             uart_write_bytes(UART_NUM_DUBUG, (const char *) data_rx0, len_rx0);//debug todo---------
-
-            uart_write_bytes(UART_NUM_2, (const char *) data_rx0, len_rx0);
+            RS485_RX_EN();//
         }
 
 
@@ -9025,7 +9012,7 @@ void uart_init_all(void)
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
     };
         uart_config_t uart_config0 = {
-            .baud_rate = 115200,//2g lock 9600
+            .baud_rate = 9600,// lock
             .data_bits = UART_DATA_8_BITS,
             .parity    = UART_PARITY_DISABLE,
             .stop_bits = UART_STOP_BITS_1,
@@ -9049,108 +9036,40 @@ void uart_init_all(void)
 #endif
         // Set UART log level
     //Set UART log level
-    // esp_log_level_set(TAG, ESP_LOG_INFO);
+    esp_log_level_set(TAG, ESP_LOG_INFO);
     //Set UART pins (using UART0 default pins ie no changes.)
-
-    //0 2G
     uart_param_config(UART_NUM_0, &uart_config0);
-    // uart_set_pin(UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    uart_set_pin(UART_NUM_0, ECHO_TEST3_TXD, ECHO_TEST3_RXD, ECHO_TEST3_RTS, ECHO_TEST3_CTS);
+    uart_set_pin(UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    // uart_set_pin(UART_NUM_0, ECHO_TEST3_TXD, ECHO_TEST3_RXD, ECHO_TEST3_RTS, ECHO_TEST3_CTS);
     //Install UART driver, and get the queue.
     uart_driver_install(UART_NUM_0, BUF_SIZE * 2, 0, 0, NULL, 0);
 
     // vTaskDelay(1000 / portTICK_PERIOD_MS);
     // DB_PR("Start ttl application test and configure UART2.\r\n");
 
-    //1 lcd
+    //1
     uart_param_config(UART_NUM_1, &uart_config);
     uart_set_pin(UART_NUM_1, ECHO_TEST_TXD, ECHO_TEST_RXD, ECHO_TEST_RTS, ECHO_TEST_CTS);
     uart_driver_install(UART_NUM_1, BUF_SIZE * 2, 0, 0, NULL, 0);
 
+    // //2
+    // uart_param_config(UART_NUM_2, &uart_config2);
+    // uart_set_pin(UART_NUM_2, ECHO_TEST2_TXD, ECHO_TEST2_RXD, ECHO_TEST2_RTS, ECHO_TEST2_CTS);
+    // uart_driver_install(UART_NUM_2, BUF_SIZE * 2, 0, 0, NULL, 0);
 
 
-
-            //2 指纹 del------------      log tmp
-            uart_param_config(UART_NUM_2, &uart_config2);
-            uart_set_pin(UART_NUM_2,  ECHO_TEST2_TXD, ECHO_TEST2_RXD, ECHO_TEST2_RTS, ECHO_TEST2_CTS);
-            uart_driver_install(UART_NUM_2, BUF_SIZE * 2, 0, 0, NULL, 0);
+    //3 io moni
+    uart_param_config(UART_NUM_2, &uart_config2);
+    uart_set_pin(UART_NUM_2,  ECHO_TEST2_TXD, ECHO_TEST2_RXD, ECHO_TEST2_RTS, ECHO_TEST2_CTS);
+    uart_driver_install(UART_NUM_2, BUF_SIZE * 2, 0, 0, NULL, 0);
 
     // //3 io moni
     // uart_param_config(UART_NUM_3, &uart_config3);
     // uart_set_pin(UART_NUM_3, ECHO_TEST3_TXD, ECHO_TEST3_RXD, ECHO_TEST3_RTS, ECHO_TEST3_CTS);
     // uart_driver_install(UART_NUM_3, BUF_SIZE * 2, 0, 0, NULL, 0);
 
-    //3 485 add    softwareserial
-
-    lock_uart_class= sw_new(ECHO_TEST0_TXD, ECHO_TEST0_RXD, false, 512);//22 21
-    DB_PR("%u\n", lock_uart_class->bitTime);
-    if (lock_uart_class != NULL)
-    {
-        
-        sw_open(lock_uart_class, 9600); // 115200 > 9600
-
-        DB_PR("-------1-------sw_write test\n");
-        // for (size_t i = 0; i < 128; i++)
-        // {
-        //     sw_write(lock_uart_class, (uint8_t)i);
-        // }
-        // vTaskDelay(500 / portTICK_RATE_MS);
-
-        // DB_PR("--------2-------sw_write test\n");
-        // for (size_t i = 128; i < 256; i++)
-        // {
-        //     sw_write(lock_uart_class, (uint8_t)i);
-        // }
-        // vTaskDelay(500 / portTICK_RATE_MS);
 
 
-
-
-        // uint8_t mybuf[200]={0};
-        // while (true)
-        // {
-            
-        //     vTaskDelay(100 / portTICK_RATE_MS);//1000
-        //     // DB_PR("check recvd data");
-        //     int len = sw_any(lock_uart_class);
-            
-        //     if (len > 0)
-        //     {
-        //         printf("\n-----------1s len=%d-----------\n",len);
-        //         for (size_t i = 0; i < len; i++)
-        //         {
-        //             mybuf[i] = sw_read(lock_uart_class);
-        //             printf("%02X ", mybuf[i]);
-        //             // sw_write(lock_uart_class, mybuf[i]);
-        //             // // printf("%02X ", sw_read(lock_uart_class));
-        //             // sw_write(lock_uart_class, (uint8_t)(sw_read(lock_uart_class)));
-        //         }
-        //         printf("\n-----------1e-----------\n");
-        //         // vTaskDelay(100 / portTICK_RATE_MS);
-
-        //         printf("\n-----------2s-----------\n");
-        //         // for (size_t i = 0; i < len; i++)
-        //         // {
-        //         //     // printf("%02X ", sw_read(lock_uart_class));
-        //         //     sw_write(lock_uart_class, mybuf[i]);
-        //         //     // sw_write(lock_uart_class, (uint8_t)i);
-        //         // }
-                                    
-        //         for (size_t i = 0; i < 250; i++)
-        //         {
-        //             sw_write(lock_uart_class, (uint8_t)i);
-        //         }
-        //         printf("\n-----------2e-----------\n");
-
-        //         printf("\nrecv sw_any %02u %02u %02u \n", sw_any(lock_uart_class), lock_uart_class->inPos, lock_uart_class->outPos);
-
-        //     }
-
-        // }
-        
-    }
-    
-    // sw_del(lock_uart_class);//todo
 }
 
 
@@ -9291,8 +9210,8 @@ void es7134_pa_power(bool enable)
 void audio_init(void)
 {
 
-    // esp_log_level_set("*", ESP_LOG_WARN);
-    // esp_log_level_set(TAG, ESP_LOG_NONE);//ESP_LOG_INFO
+    esp_log_level_set("*", ESP_LOG_WARN);
+    esp_log_level_set(TAG, ESP_LOG_INFO);
 
     // DB_PR("[ 1 ] Start codec chip");
     // audio_board_handle_t board_handle = audio_board_init();
@@ -9714,7 +9633,7 @@ void zhiwen_init(void )
             delay_ms(800);
             DB_PR("---1---尝试连接模块...\r\n");	
 
-            if(i==1)
+            if(i==2)
             {
                 DB_PR("---1---zhiwen HandShake fail...\r\n");	
                 HandShakeFlag =1;
@@ -9723,7 +9642,7 @@ void zhiwen_init(void )
         }
         else
         {
-            break;//ok
+            break;
         }
         
 
@@ -10261,8 +10180,7 @@ u16 cjson_to_struct_info_tcp_rcv(char *text)
 
 
             RS485_TX_EN();
-            // uart_write_bytes(UART_NUM_LOCK, (const char *) buff_t, size);
-            uartlock_output(buff_t, size);
+            uart_write_bytes(UART_NUM_LOCK, (const char *) buff_t, size);
             RS485_RX_EN();
 
 
@@ -10298,8 +10216,7 @@ u16 cjson_to_struct_info_tcp_rcv(char *text)
 
 
             RS485_TX_EN();
-            // uart_write_bytes(UART_NUM_LOCK, (const char *) buff_t, size);
-            uartlock_output(buff_t, size);
+            uart_write_bytes(UART_NUM_LOCK, (const char *) buff_t, size);
             RS485_RX_EN();
 
             DB_PR("\n----------ok-----------\n");   
@@ -11777,10 +11694,11 @@ void gpio_int()
 
     DB_PR("-----gpio init----- ... \r\n");
 
-    // gpio_pad_select_gpio(RE_485_GPIO);
-    // /* Set the GPIO as a push/pull output */
-    // gpio_set_direction(RE_485_GPIO, GPIO_MODE_OUTPUT);
-    // RS485_RX_EN();//RS485_TX_EN();
+    gpio_pad_select_gpio(RE_485_GPIO);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(RE_485_GPIO, GPIO_MODE_OUTPUT);
+    
+    RS485_RX_EN();//RS485_TX_EN();
 
 
     // //todo 2G DTU
@@ -11867,21 +11785,13 @@ void app_main(void)
     // u8 buff_temp2_c[400]={0};//150
 
 
-	esp_log_level_set(TAG, ESP_LOG_NONE);//ESP_LOG_INFO
 
-    gpio_pad_select_gpio(RE_485_GPIO);
-    /* Set the GPIO as a push/pull output */
-    gpio_set_direction(RE_485_GPIO, GPIO_MODE_OUTPUT);
-    //RCV MODE
-    RS485_RX_EN();//RS485_TX_EN();
-    
     uart_init_all();
     //vTaskDelay(500 / portTICK_PERIOD_MS);
 
     //xTaskCreate(echo_task, "uart_echo_task", 1024, NULL, 10, NULL);
     xTaskCreate(echo_task, "uart_echo_task", 2* 1024, NULL, 1, NULL);//1024 10
 
-    vTaskDelay(200 / portTICK_PERIOD_MS);
     send_cmd_to_lcd_pic(0x0000);
 
 
@@ -11901,7 +11811,7 @@ void app_main(void)
 
 
     //---------------zhiwen-----------------
-    zhiwen_init();
+    // zhiwen_init();
 
 
 

@@ -105,8 +105,7 @@ extern const char *TAG ;
 // #endif  
 
 #define BAUD_RATE_DB 115200
-#define BAUD_RATE_RL 115200
-//9600
+#define BAUD_RATE_RL 9600
 
 #define _DEBUG_ 0
 
