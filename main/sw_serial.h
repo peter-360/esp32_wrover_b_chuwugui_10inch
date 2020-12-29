@@ -11,7 +11,8 @@ http://www.opensource.org/licenses/mit-license.php
 #include <freertos/task.h>
 #include <freertos/portmacro.h>
 
-#include <esp_clk.h>
+// #include <esp_clk.h>
+#include "esp32/clk.h"
 #include <driver/gpio.h>
 
 #define SW_EOF -1 
